@@ -1,158 +1,127 @@
 import pytest
 
 
-def int_sub(a, b):
-    if not (isinstance(a, (int, float)) and isinstance(b, (int, float))):
+def power(base, exp):
+    if not isinstance(base, (int, float)) or not isinstance(exp, (int, float)):
+        raise TypeError("Both base and exponent must be integers or floats")
+    return base ** exp
+
+
+def gcd(a, b):
+    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):
         raise TypeError("Both inputs must be integers or floats")
-    return int(a - b)
+    while b:
+        a, b = b, a % b
+    return abs(a)
 
 
-def int_sum(a, b):
-    if not (isinstance(a, (int, float)) and isinstance(b, (int, float))):
+def lcm(a, b):
+    # Ensure both inputs are integers or floats
+    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):
         raise TypeError("Both inputs must be integers or floats")
-    return int(a + b)
+
+    # Ensure neither input is zero to avoid division by zero in LCM calculation
+    if a == 0 or b == 0:
+        raise ValueError("Neither input can be zero")
+
+    return abs(a * b) // gcd(a, b)
 
 
-def int_mult(a, b):
-    if not (isinstance(a, (int, float)) and isinstance(b, (int, float))):
-        raise TypeError("Both inputs must be integers or floats")
-    return int(a * b)
+def test_lcm_positive_numbers():
+    assert lcm(6, 8) == 24, "Should return the least common multiple of two positive numbers"
 
 
-def int_dev(a, b):
-    if not (isinstance(a, (int, float)) and isinstance(b, (int, float))):
-        raise TypeError("Both inputs must be integers or floats")
-    if b == 0:
-        raise TypeError("The denominator of the expression is equal to zero --> Inf ")
-    return a / b
+def test_lcm_negative_numbers():
+    # LCM should always be positive, even if inputs are negative
+    assert lcm(-6, 8) == 24, "Should return the least common multiple of a negative and a positive number"
+    assert lcm(-6, -8) == 24, "Should return the least common multiple of two negative numbers"
 
 
-def test_division_integers():
-    assert int_dev(10, 2) == 5, "Should return the correct division result for two integers"
+def test_lcm_with_zero_raises_error():
+    # Testing that providing zero as input correctly raises a ValueError
+    with pytest.raises(ValueError):
+        lcm(0, 8)
+    with pytest.raises(ValueError):
+        lcm(6, 0)
+    with pytest.raises(ValueError):
+        lcm(0, 0)
 
 
-def test_division_floats():
-    assert int_dev(9.0, 3.0) == 3.0, "Should return the correct division result for two floats"
+def test_lcm_same_number():
+    # LCM of a number with itself should be itself
+    assert lcm(7, 7) == 7, "LCM of a number with itself should be the number"
 
 
-def test_division_negative_numbers():
-    assert int_dev(-10, -5) == 2, "Should handle division with negative numbers correctly"
-
-
-def test_division_by_zero():
-    with pytest.raises(TypeError):
-        int_dev(5, 0), "Should raise an error when dividing by zero"
-
-
-def test_division_with_zero_numerator():
-    assert int_dev(0, 5) == 0, "Should return zero when numerator is zero"
-
-
-def test_division_string_input():
-    with pytest.raises(TypeError):
-        int_dev('10', '2'), "Should raise a TypeError when input is not a number"
-
-
-def test_multiply_integers():
-    assert int_mult(3, 4) == 12, "Should return the product of two integers"
-
-
-def test_multiply_floats():
-    assert int_mult(2.5, 4.0) == 10, "Should return the integer product of two floats"
-
-
-def test_multiply_negative_numbers():
-    assert int_mult(-2, 3) == -6, "Should return the product of a negative and a positive number"
-
-
-def test_multiply_by_zero():
-    assert int_mult(0, 5) == 0, "Multiplying by zero should return zero"
-
-
-def test_multiply_negative_floats():
-    assert int_mult(-2.5, -4.0) == 10, "Should return the product of two negative floats as a positive integer"
-
-
-def test_multiply_string_input():
-    with pytest.raises(TypeError):
-        int_mult('4', '5')
+def test_lcm_one_is_factor_of_other():
+    # If one number is a factor of the other, LCM should be the larger number
+    assert lcm(5, 20) == 20, "LCM should be the larger number if one number is a factor of the other"
+    assert lcm(20, 5) == 20, "LCM should be the larger number if one number is a factor of the other"
 
 
 @pytest.mark.parametrize("a, b, expected", [
-    (5, 5, 25),
-    (2, 8, 16),
-    (3, -3, -9),
-    (-4, -5, 20),
-    (0, 10, 0),
+    (12, 18, 36),
+    (18, 12, 36),
+    (21, 6, 42),
+    (8, 9, 72),
 ])
-def test_multiplication_independence_from_order_and_type(a, b, expected):
-    assert int_mult(a, b) == expected, "Should correctly multiply two numbers regardless of their order and type"
+def test_lcm_various(a, b, expected):
+    assert lcm(a, b) == expected, f"LCM of {a} and {b} should be {expected}"
 
 
-def test_sub_integers():
-    assert int_sub(7, 5) == 2, "Should return the difference of two integers"
+def test_gcd_multiple():
+    assert gcd(8, 4) == 4, "Should return 4 as GCD of 8 and 4"
 
 
-def test_sub_floats():
-    assert int_sub(5.5, 2.5) == 3, "Should return the integer difference of two floats"
+def test_gcd_coprime():
+    assert gcd(9, 28) == 1, "9 and 28 are coprime, so GCD should be 1"
 
 
-def test_sub_negative_numbers():
-    assert int_sub(-4, -6) == 2, "Should return the difference of two negative numbers"
+def test_gcd_one_zero():
+    assert gcd(0, 5) == 5, "GCD of 0 and any number should be the number itself"
 
 
-def test_sub_string_input():
+def test_gcd_same_numbers():
+    assert gcd(10, 10) == 10, "GCD of the same numbers should be the number itself"
+
+
+def test_gcd_negative_numbers():
+    assert gcd(-12, -18) == 6, "GCD should be positive even if the numbers are negative"
+
+
+def test_gcd_invalid_input():
     with pytest.raises(TypeError):
-        int_sub('4', '5')
+        gcd('12', 18)
 
 
-def test_integers():
-    assert int_sum(5, 7) == 12, "Should return the sum of two integers"
+def test_power_positive_integers():
+    assert power(2, 3) == 8, "Should calculate the power of positive integers correctly"
 
 
-def test_floats():
-    assert int_sum(3.5, 2.5) == 6, "Should return the integer sum of two floats"
+def test_power_negative_base():
+    assert power(-2, 3) == -8, "Should handle negative base correctly"
 
 
-def test_negative_numbers():
-    assert int_sum(-4, -6) == -10, "Should return the sum of two negative numbers"
+def test_power_zero_base():
+    assert power(0, 3) == 0, "Zero raised to any power should be zero"
 
 
-def test_string_input():
+def test_power_zero_exponent():
+    assert power(2, 0) == 1, "Any number raised to the power of zero should be one"
+
+
+def test_power_floats():
+    assert power(2.0, 3.5) == 2.0 ** 3.5, "Should handle floats correctly"
+
+
+def test_power_negative_exponent():
+    assert power(2, -3) == 0.125, "Should calculate the power with negative exponent correctly"
+
+
+def test_power_invalid_base():
     with pytest.raises(TypeError):
-        int_sum('4', '5')
+        power('2', 3)
 
 
-@pytest.mark.parametrize("a, b, expected", [
-    (20, 4, 5),
-    (15, 3, 5),
-    (10.0, 2.5, 4.0),
-    (-8, 2, -4),
-    (-9, -3, 3)
-])
-def test_division_parametrized(a, b, expected):
-    assert int_dev(a, b) == expected, "Should return the correct division result for given inputs"
-
-
-@pytest.mark.parametrize("a, b, expected", [
-    (4, 5, 9),
-    (5, 4, 9),
-])
-def test_independence_from_order(a, b, expected):
-    assert int_sum(a, b) == expected, "Should be independent from the order of inputs"
-
-
-@pytest.mark.parametrize("a, b, expected", [
-    (1, 4, -3),
-    (9, 2, 7),
-])
-def test_independence_from_order_sub(a, b, expected):
-    assert int_sub(a, b) == expected, "Should be independent from the order of inputs"
-
-
-@pytest.mark.parametrize("a, b, expected_difference", [
-    (4, 5, -1),
-    (5, 4, 1),
-])
-def test_subtraction_order(a, b, expected_difference):
-    assert int_sub(a, b) == expected_difference, "Subtraction result should depend on the order of inputs"
+def test_power_invalid_exponent():
+    with pytest.raises(TypeError):
+        power(2, '3')
