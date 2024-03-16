@@ -1,6 +1,8 @@
 import pytest
 
 
+# release v1.0 your surname
+
 def power(base, exp):
     if not isinstance(base, (int, float)) or not isinstance(exp, (int, float)):
         raise TypeError("Both base and exponent must be integers or floats")
