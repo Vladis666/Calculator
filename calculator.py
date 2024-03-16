@@ -1,11 +1,20 @@
 import pytest
 
+# 2 unit tests
+# release v1.0 your surname
 
 # Kuznetsov
 def power(base, exp):
     if not isinstance(base, (int, float)) or not isinstance(exp, (int, float)):
         raise TypeError("Both base and exponent must be integers or floats")
+    if base == 0 and exp == 0:
+        raise TypeError("ArithmeticException")
     return base ** exp
+
+
+def test_zero_in_power_0():
+    with pytest.raises(TypeError):
+        power(0, 0), "Should raise an error when zero is in power zero"
 
 
 def gcd(a, b):
@@ -14,6 +23,19 @@ def gcd(a, b):
     while b:
         a, b = b, a % b
     return abs(a)
+
+
+def int_dev(a, b):
+    if not (isinstance(a, (int, float)) and isinstance(b, (int, float))):
+        raise TypeError("Both inputs must be integers or floats")
+    if b == 0:
+        raise TypeError("ArithmeticException")
+    return a / b
+
+
+def test_division_by_zero():
+    with pytest.raises(TypeError):
+        int_dev(5, 0), "Should raise an error when dividing by zero"
 
 
 def lcm(a, b):
