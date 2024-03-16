@@ -1,6 +1,7 @@
 import pytest
 
 
+# Kuznetsov
 def power(base, exp):
     if not isinstance(base, (int, float)) or not isinstance(exp, (int, float)):
         raise TypeError("Both base and exponent must be integers or floats")
